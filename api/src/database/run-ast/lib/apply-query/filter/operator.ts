@@ -227,4 +227,23 @@ export function applyOperator(
 	if (operator == '_nintersects_bbox') {
 		dbQuery[logical].whereRaw(helpers.st.nintersects_bbox(key, compareValue));
 	}
+
+	if (operator == '_geodistance') {
+		// Expects compareValue in the format { latitude: number, longitude: number, range: number }
+		// range is the distance in meters
+		if (
+			compareValue &&
+			typeof compareValue === 'object' &&
+			'latitude' in compareValue &&
+			'longitude' in compareValue &&
+			'range' in compareValue
+		) {
+			const { latitude, longitude, range } = compareValue;
+			const whereClause = helpers.st.geodistance(key, latitude, longitude, range);
+
+			if (whereClause != null) {
+				dbQuery[logical].whereRaw(whereClause);
+			}
+		}
+	}
 }
