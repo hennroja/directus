@@ -64,4 +64,8 @@ export abstract class GeometryHelper extends DatabaseHelper {
 	collect(table: string, column: string): Knex.Raw {
 		return this.knex.raw('st_astext(st_collect(??.??))', [table, column]);
 	}
+
+	geodistance(_key: string, _latitude: number, _longitude: number, _range: number): Knex.Raw | null {
+		return null;
+	}
 }

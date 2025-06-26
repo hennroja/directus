@@ -53,6 +53,7 @@ export function validateQuery(query: Query): Query {
 	return query;
 }
 
+
 function validateFilter(filter: Filter) {
 	for (const [key, nested] of Object.entries(filter)) {
 		if (key === '_and' || key === '_or') {
@@ -83,6 +84,9 @@ function validateFilter(filter: Filter) {
 				case '_some':
 					validateFilter(nested);
 					break;
+				case '_geodistance':
+					validateFilterObject(value)
+					break;
 				case '_eq':
 				case '_neq':
 				case '_contains':
@@ -112,6 +116,45 @@ function validateFilter(filter: Filter) {
 			validateFilter(nested);
 		}
 	}
+}
+
+function validateFilterObject(filterObj: any) {
+	if (!isPlainObject(filterObj)) {
+		throw new InvalidQueryError({ reason: `"_geodistance" has to be an object` });
+	}
+
+	const requiredKeys = ['latitude', 'longitude', 'range'];
+
+	// Check if all required keys exist
+	for (const key of requiredKeys) {
+		if (!(key in filterObj)) {
+			throw new InvalidQueryError({ reason: `"_geodistance" object is missing required property "${key}"` });
+		}
+	}
+
+	// Validate types
+	if (typeof filterObj.latitude !== 'number' || Number.isNaN(filterObj.latitude)) {
+		throw new InvalidQueryError({ reason: `"_geodistance.latitude" has to be a valid number` });
+	}
+
+	if (typeof filterObj.longitude !== 'number' || Number.isNaN(filterObj.longitude)) {
+		throw new InvalidQueryError({ reason: `"_geodistance.longitude" has to be a valid number` });
+	}
+
+	if (typeof filterObj.range !== 'number' || Number.isNaN(filterObj.range) || filterObj.range <= 0) {
+		throw new InvalidQueryError({ reason: `"_geodistance.range" has to be a positive number` });
+	}
+
+	// Validate value ranges
+	if (filterObj.latitude < -90 || filterObj.latitude > 90) {
+		throw new InvalidQueryError({ reason: `"_geodistance.latitude" has to be between -90 and 90` });
+	}
+
+	if (filterObj.longitude < -180 || filterObj.longitude > 180) {
+		throw new InvalidQueryError({ reason: `"_geodistance.longitude" has to be between -180 and 180` });
+	}
+
+	return true;
 }
 
 function validateFilterPrimitive(value: any, key: string) {
