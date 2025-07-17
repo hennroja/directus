@@ -116,6 +116,7 @@ describe('', () => {
 			'nintersects',
 			'intersects_bbox',
 			'nintersects_bbox',
+			'geodistance',
 		]);
 	});
 

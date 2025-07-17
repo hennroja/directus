@@ -19,7 +19,8 @@ export type FilterOperator =
 	| 'intersects'
 	| 'nintersects'
 	| 'intersects_bbox'
-	| 'nintersects_bbox';
+	| 'nintersects_bbox'
+	| 'geodistance';
 
 export type ClientFilterOperator =
 	| FilterOperator
@@ -73,6 +74,7 @@ export type FieldFilterOperator = {
 	_nintersects?: string;
 	_intersects_bbox?: string;
 	_nintersects_bbox?: string;
+	_geodistance?: { latitude: number; longitude: number; range: number };
 };
 
 export type FieldValidationOperator = {
