@@ -22,4 +22,16 @@ export class GeometryHelperPostgres extends GeometryHelper {
 	asGeoJSON(table: string, column: string): Knex.Raw {
 		return this.knex.raw('st_asgeojson(??.??) as ??', [table, column, column]);
 	}
+
+	override geodistance(key: string, latitude: number, longitude: number, range: number): Knex.Raw {
+		return this.knex.raw(
+			`ST_DWithin(
+				??::geography,
+				geography(ST_SetSRID(ST_MakePoint(?, ?), 4326)),
+				?
+			)
+			`,
+			[key, longitude, latitude, range],
+		);
+	}
 }
